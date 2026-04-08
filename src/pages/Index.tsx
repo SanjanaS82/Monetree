@@ -1,16 +1,30 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { MonetreeProvider } from "@/context/MonetreeContext";
+import BalanceCards from "@/components/BalanceCards";
+import ActionPanel from "@/components/ActionPanel";
+import SavingsSection from "@/components/SavingsSection";
+import TransactionHistory from "@/components/TransactionHistory";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <MonetreeProvider>
+      <div className="min-h-screen bg-background">
+        <header className="bg-primary text-primary-foreground py-5 px-6 shadow-md">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-2xl font-bold tracking-tight">Monetree</h1>
+            <p className="text-sm opacity-80 mt-0.5">Smart Money Management</p>
+          </div>
+        </header>
+        <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+          <BalanceCards />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ActionPanel />
+            <SavingsSection />
+          </div>
+          <TransactionHistory />
+        </main>
+      </div>
+    </MonetreeProvider>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
