@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { toast } from "sonner";
 
-export type TransactionType = "deposit" | "withdraw" | "lock" | "savings" | "goal_set";
+export type TransactionType = "deposit" | "withdraw" | "lock" | "unlock" | "savings" | "goal_set";
 
 export interface Transaction {
   id: string;
@@ -28,6 +28,7 @@ interface MonetreeActions {
   deposit: (amount: number) => void;
   withdraw: (amount: number) => void;
   lockMoney: (amount: number) => void;
+  unlockMoney: (amount: number) => void;
   setSavingsGoal: (amount: number) => void;
   addToSavings: (amount: number) => void;
 }
@@ -38,14 +39,6 @@ export const useMonetree = () => {
   const ctx = useContext(MonetreeContext);
   if (!ctx) throw new Error("useMonetree must be used within MonetreeProvider");
   return ctx;
-};
-
-const labelMap: Record<TransactionType, string> = {
-  deposit: "Deposit",
-  withdraw: "Withdrawal",
-  lock: "Money Locked",
-  savings: "Savings Contribution",
-  goal_set: "Savings Goal Set",
 };
 
 export const MonetreeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -100,6 +93,17 @@ export const MonetreeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     toast.success(`Successfully locked ${amount.toFixed(2)}`);
   }, [availableBalance, addTransaction]);
 
+  const unlockMoney = useCallback((amount: number) => {
+    if (!validatePositive(amount)) return;
+    if (amount > lockedAmount) {
+      toast.error("Cannot unlock more than locked amount");
+      return;
+    }
+    setLockedAmount((l) => l - amount);
+    addTransaction("unlock", amount, `Unlocked ${amount.toFixed(2)}`);
+    toast.success(`Successfully unlocked ${amount.toFixed(2)}`);
+  }, [lockedAmount, addTransaction]);
+
   const setSavingsGoal = useCallback((amount: number) => {
     if (!validatePositive(amount)) return;
     setSavingsGoalState({ target: amount, current: 0 });
@@ -136,7 +140,7 @@ export const MonetreeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <MonetreeContext.Provider value={{
       balance, lockedAmount, savingsGoal, transactions, availableBalance,
-      deposit, withdraw, lockMoney, setSavingsGoal, addToSavings,
+      deposit, withdraw, lockMoney, unlockMoney, setSavingsGoal, addToSavings,
     }}>
       {children}
     </MonetreeContext.Provider>
