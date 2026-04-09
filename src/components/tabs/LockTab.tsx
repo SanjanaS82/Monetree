@@ -3,25 +3,32 @@ import { useMonetree } from "@/context/MonetreeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Lock, Unlock } from "lucide-react";
+import { getAvailableBalance } from "@/utils/storage";
 
 const LockTab = () => {
+  const { accounts, lockMoney, unlockMoney } = useMonetree();
+  const [lockAccountId, setLockAccountId] = useState("");
   const [lockAmount, setLockAmount] = useState("");
+  const [unlockAccountId, setUnlockAccountId] = useState("");
   const [unlockAmount, setUnlockAmount] = useState("");
-  const { lockMoney, unlockMoney, lockedAmount, availableBalance } = useMonetree();
 
   const handleLock = () => {
-    lockMoney(parseFloat(lockAmount));
+    lockMoney(lockAccountId, parseFloat(lockAmount));
     setLockAmount("");
   };
 
   const handleUnlock = () => {
-    unlockMoney(parseFloat(unlockAmount));
+    unlockMoney(unlockAccountId, parseFloat(unlockAmount));
     setUnlockAmount("");
   };
 
+  const lockAccount = accounts.find(a => a.id === lockAccountId);
+  const unlockAccount = accounts.find(a => a.id === unlockAccountId);
+
   return (
-    <div className="max-w-md mx-auto space-y-6">
+    <div className="max-w-lg mx-auto space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -31,27 +38,22 @@ const LockTab = () => {
           <CardDescription>Lock money to prevent accidental spending</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Available</p>
-              <p className="text-lg font-bold">{availableBalance.toFixed(2)}</p>
+          <Select value={lockAccountId} onValueChange={setLockAccountId}>
+            <SelectTrigger><SelectValue placeholder="Select account" /></SelectTrigger>
+            <SelectContent>
+              {accounts.map(a => (
+                <SelectItem key={a.id} value={a.id}>{a.bankName} (Avail: {getAvailableBalance(a).toFixed(2)})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {lockAccount && (
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Available: {getAvailableBalance(lockAccount).toFixed(2)}</span>
+              <span>Locked: {lockAccount.lockedAmount.toFixed(2)}</span>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Currently Locked</p>
-              <p className="text-lg font-bold text-destructive">{lockedAmount.toFixed(2)}</p>
-            </div>
-          </div>
-          <Input
-            type="number"
-            placeholder="Amount to lock"
-            value={lockAmount}
-            onChange={(e) => setLockAmount(e.target.value)}
-            min="0"
-            step="0.01"
-          />
-          <Button onClick={handleLock} variant="destructive" className="w-full">
-            Lock Money
-          </Button>
+          )}
+          <Input type="number" placeholder="Amount to lock" value={lockAmount} onChange={e => setLockAmount(e.target.value)} min="0" step="0.01" />
+          <Button onClick={handleLock} variant="destructive" className="w-full">Lock Money</Button>
         </CardContent>
       </Card>
 
@@ -64,21 +66,19 @@ const LockTab = () => {
           <CardDescription>Release previously locked funds</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Locked Amount</p>
-            <p className="text-lg font-bold">{lockedAmount.toFixed(2)}</p>
-          </div>
-          <Input
-            type="number"
-            placeholder="Amount to unlock"
-            value={unlockAmount}
-            onChange={(e) => setUnlockAmount(e.target.value)}
-            min="0"
-            step="0.01"
-          />
-          <Button onClick={handleUnlock} variant="outline" className="w-full">
-            Unlock Money
-          </Button>
+          <Select value={unlockAccountId} onValueChange={setUnlockAccountId}>
+            <SelectTrigger><SelectValue placeholder="Select account" /></SelectTrigger>
+            <SelectContent>
+              {accounts.filter(a => a.lockedAmount > 0).map(a => (
+                <SelectItem key={a.id} value={a.id}>{a.bankName} (Locked: {a.lockedAmount.toFixed(2)})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {unlockAccount && (
+            <p className="text-sm text-muted-foreground">Locked: {unlockAccount.lockedAmount.toFixed(2)}</p>
+          )}
+          <Input type="number" placeholder="Amount to unlock" value={unlockAmount} onChange={e => setUnlockAmount(e.target.value)} min="0" step="0.01" />
+          <Button onClick={handleUnlock} variant="outline" className="w-full">Unlock Money</Button>
         </CardContent>
       </Card>
     </div>
