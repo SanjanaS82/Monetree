@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { MonetreeProvider } from "@/context/MonetreeContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardTab from "@/components/tabs/DashboardTab";
@@ -7,7 +6,8 @@ import WithdrawTab from "@/components/tabs/WithdrawTab";
 import LockTab from "@/components/tabs/LockTab";
 import SavingsTab from "@/components/tabs/SavingsTab";
 import TransactionsTab from "@/components/tabs/TransactionsTab";
-import { LayoutDashboard, ArrowDownToLine, ArrowUpFromLine, Lock, PiggyBank, List } from "lucide-react";
+import ProfileTab from "@/components/tabs/ProfileTab";
+import { LayoutDashboard, ArrowDownToLine, ArrowUpFromLine, Lock, PiggyBank, List, User } from "lucide-react";
 
 const tabs = [
   { value: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -16,6 +16,7 @@ const tabs = [
   { value: "lock", label: "Lock / Unlock", icon: Lock },
   { value: "savings", label: "Savings", icon: PiggyBank },
   { value: "transactions", label: "Transactions", icon: List },
+  { value: "profile", label: "Profile", icon: User },
 ];
 
 const Index = () => {
@@ -48,6 +49,7 @@ const Index = () => {
             <TabsContent value="lock"><LockTab /></TabsContent>
             <TabsContent value="savings"><SavingsTab /></TabsContent>
             <TabsContent value="transactions"><TransactionsTab /></TabsContent>
+            <TabsContent value="profile"><ProfileTab /></TabsContent>
           </Tabs>
         </main>
       </div>
